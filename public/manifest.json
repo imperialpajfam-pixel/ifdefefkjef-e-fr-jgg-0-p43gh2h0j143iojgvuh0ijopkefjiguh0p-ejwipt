@@ -1,0 +1,16 @@
+{
+  "name": "OIGUY",
+  "short_name": "OIGUY",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b09",
+  "theme_color": "#070b09",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
