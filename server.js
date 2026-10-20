@@ -10,7 +10,7 @@ const cl=(s,n=24)=>String(s||'').trim().slice(0,n),key=u=>cl(u,20).toLowerCase()
 const num=(v,max)=>Math.max(0,Math.min(max,Math.round(+v||0)));
 const FAIL={};setInterval(()=>{for(const k in FAIL)delete FAIL[k]},6e5);
 class E extends Error{constructor(m,c=400){super(m);this.c=c}}
-const board=g=>Object.values(g.m).map(m=>({u:m.n,st:m.st||0,wk:m.wk||0,mo:m.mo||0,hb:m.hb||0,ph:m.ph||'',own:m.k==g.owner}));
+const board=g=>Object.values(g.m).map(m=>({u:m.n,st:m.st||0,wk:m.wk||0,mo:m.mo||0,hb:m.hb||0,ph:m.ph||'',t:m.t||0,own:m.k==g.owner}));
 const out=(g,x)=>({name:g.name,board:board(g),...x});
 const grp=b=>{const g=DB.groups[cl(b.code,6).toUpperCase()];if(!g)throw new E('Grupo no encontrado',404);return g};
 const mem=(g,b)=>{const m=g.m[key(b.user)];if(!m||m.tok!==b.token)throw new E('Sesión inválida',401);return m};
@@ -29,7 +29,8 @@ join(b){const g=grp(b),code=cl(b.code,6).toUpperCase(),user=cl(b.user,20),pin=cl
  return out(g,{code,token:m.tok})},
 sync(b){const g=grp(b),m=mem(g,b),s=b.stats||{};m.st=num(s.st,9999);m.wk=num(s.wk,100);m.mo=num(s.mo,100);m.hb=num(s.hb,99);if(typeof s.ph=='string'&&s.ph.length<6000&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(s.ph))m.ph=s.ph;else if(!s.ph)delete m.ph;m.t=Date.now();save();return out(g)},
 kick(b){const g=grp(b),m=mem(g,b),t=key(b.target);if(g.owner!==m.k)throw new E('Solo el dueño puede sacar miembros.',403);if(t===g.owner)throw new E('No puedes sacarte a ti mismo.');delete g.m[t];save();return out(g)},
-leave(b){const g=grp(b),m=mem(g,b),code=cl(b.code,6).toUpperCase();delete g.m[m.k];const ks=Object.keys(g.m);if(!ks.length)delete DB.groups[code];else if(g.owner===m.k)g.owner=ks[0];save();return{ok:true}}
+leave(b){const g=grp(b),m=mem(g,b),code=cl(b.code,6).toUpperCase();delete g.m[m.k];const ks=Object.keys(g.m);if(!ks.length)delete DB.groups[code];else if(g.owner===m.k)g.owner=ks[0];save();return{ok:true}},
+destroy(b){const g=grp(b),m=mem(g,b);if(g.owner!==m.k)throw new E('Solo el dueño puede eliminar el grupo.',403);delete DB.groups[cl(b.code,6).toUpperCase()];save();return{ok:true}}
 };
 const T={'.html':'text/html','.json':'application/json','.svg':'image/svg+xml','.js':'text/javascript','.png':'image/png'};
 http.createServer((q,r)=>{
